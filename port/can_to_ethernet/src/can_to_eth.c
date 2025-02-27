@@ -69,8 +69,7 @@ static int32_t process_tcp_client(uint8_t sn, uint8_t* destip, uint16_t destport
                     }	
                 }
 
-                do {
-                    
+                {
                     ret = pop_rbuf(&recv_msg);
 
                     if(ret < 0)
@@ -90,7 +89,7 @@ static int32_t process_tcp_client(uint8_t sn, uint8_t* destip, uint16_t destport
                         close(sn);
                         return ret;
                     }
-                } while(1);
+                }
                 
                 break;
 
@@ -183,8 +182,7 @@ static int32_t process_tcp_server(uint8_t sn, uint16_t port)
                 }
             }
 
-            do {
-
+            {
                 ret = pop_rbuf(&recv_msg);
 
                 if(ret < 0)
@@ -204,7 +202,7 @@ static int32_t process_tcp_server(uint8_t sn, uint16_t port)
                     close(sn);
                     return ret;
                 }
-            } while(1);
+            }
 
             break;
         case SOCK_CLOSE_WAIT :
@@ -269,13 +267,11 @@ int32_t reset_eth()
         if((ret = disconnect(SOCKET_TCP)) != SOCK_OK) {
             return ret;
         }
-        printf("disconnect\n");
     }
 
     if((ret = close(SOCKET_TCP)) != SOCK_OK) {
         return ret;
     }
-    printf("close\n");
 
     return 1;
 }

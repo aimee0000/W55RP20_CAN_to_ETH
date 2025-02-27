@@ -1,2 +1,1 @@
-add_subdirectory(NonOS)
-#add_subdirectory(OS)
+add_subdirectory(main)

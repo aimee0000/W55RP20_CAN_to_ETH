@@ -44,9 +44,6 @@
 
 #define FLASH_DEV_INFO_ADDR FLASH_APP_BANK_SIZE
 
-static void flash_critical_section_lock(void);
-static void flash_critical_section_unlock(void);
-void flash_critical_section_init(void);
 void write_flash(uint32_t addr, uint8_t * data, uint32_t data_len);
 void read_flash(uint32_t addr, uint8_t *data, uint32_t data_len);
 void erase_flash_sector(uint32_t addr);

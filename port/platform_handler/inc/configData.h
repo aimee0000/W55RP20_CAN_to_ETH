@@ -50,28 +50,28 @@ typedef struct _NetworkConfig {
 	uint8_t         subnet[4];
   uint8_t         dns_server_ip[4];
   //uint8_t         dhcp_use;
-} NetworkConfig;
+} __attribute__((packed)) NetworkConfig;
 
 typedef struct _ConnectionConfig {
 	uint8_t         working_mode;
   uint16_t        local_port;
   uint8_t         remote_ip[4];
   uint16_t        remote_port;
-} ConnectionConfig;
+} __attribute__((packed)) ConnectionConfig;
 
 typedef struct _CanConfig {
   CAN_BDRATE      baudrate;
   CAN_SPEC        spec;   // 2.0A or 2.0B
   uint32_t        filt_id;
   uint32_t        filt_mask;
-} CanConfig;
+} __attribute__((packed)) CanConfig;
 
 typedef struct _DevConfig {
   uint32_t              packet_size;
   NetworkConfig         network_config;
   ConnectionConfig      connection_config;
   CanConfig             can_config;
-} DevConfig;
+} __attribute__((packed)) DevConfig;
 
 DevConfig* get_DevConfig_pointer(void);
 void set_DevConfig_to_factory_value(void);

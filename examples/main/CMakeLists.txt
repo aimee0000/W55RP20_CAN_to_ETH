@@ -4,12 +4,6 @@ add_executable(${TARGET_NAME_LINKER}
         ${TARGET_NAME_LINKER}.c
 )
 
-set(PICO_FLASH_SAFE_EXECUTE_SUPPORT_FREERTOS_SMP 0)
-
-#target_sources(${TARGET_NAME_LINKER} PRIVATE
-#    ./../can_parser.c
-#)
-
 target_include_directories(${TARGET_NAME_LINKER} PRIVATE
         ./../
         )

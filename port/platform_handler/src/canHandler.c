@@ -15,7 +15,6 @@ static struct can2040 cbus;
 
 volatile CAN_RX_RBUF can_rx_rbuf; 
 CAN_FILTER can_filter;
-static critical_section_t can_cris_sec;
 
 // private funcs
 static void can2040_cb(struct can2040 *cd, uint32_t notify, struct can2040_msg *msg);
@@ -23,25 +22,27 @@ static int is_pio_in_use(uint32_t pio_num);
 
 void set_can_filter(CAN_SPEC spec, uint32_t filter_id, uint32_t mask)
 {
-    critical_section_enter_blocking(&can_cris_sec);
+    irq_set_enabled(PIO0_IRQ_0, false);
+
     can_filter.spec = spec;
     can_filter.filter_id = filter_id;
     can_filter.filter_mask = mask;
-    critical_section_exit(&can_cris_sec);
+   
+    irq_set_enabled(PIO0_IRQ_0, true); 
 }
 
 void push_rbuf(struct can2040_msg *msg)
 {
-    critical_section_enter_blocking(&can_cris_sec);
+    irq_set_enabled(PIO0_IRQ_0, false); 
 
     memcpy(&can_rx_rbuf.msg_buf[can_rx_rbuf.push_idx], msg, sizeof(struct can2040_msg));
     
-    if(can_rx_rbuf.push_idx < DATA_BUF_MAX_SIZE)
+    if(can_rx_rbuf.push_idx < DATA_BUF_MAX_SIZE - 1)
         can_rx_rbuf.push_idx++;
     else    
         can_rx_rbuf.push_idx = 0;
-
-    critical_section_exit(&can_cris_sec);
+        
+    irq_set_enabled(PIO0_IRQ_0, true); 
 }
 
 int pop_rbuf(struct can2040_msg *msg)
@@ -49,15 +50,17 @@ int pop_rbuf(struct can2040_msg *msg)
     if(can_rx_rbuf.pop_idx == can_rx_rbuf.push_idx)
         return -1;
     
-    critical_section_enter_blocking(&can_cris_sec);
+    irq_set_enabled(PIO0_IRQ_0, false); 
+
     memcpy(msg, &can_rx_rbuf.msg_buf[can_rx_rbuf.pop_idx], sizeof(struct can2040_msg));
     
-    if(can_rx_rbuf.pop_idx < DATA_BUF_MAX_SIZE)
+    if(can_rx_rbuf.pop_idx < DATA_BUF_MAX_SIZE - 1)
         can_rx_rbuf.pop_idx++;
-    else    
+    else   
         can_rx_rbuf.pop_idx = 0;
+    
+    irq_set_enabled(PIO0_IRQ_0, true); 
 
-    critical_section_exit(&can_cris_sec);
     return 0;
 }
 
@@ -74,8 +77,6 @@ int can_initialize(CanConfig *p_can_config)
     irq_set_exclusive_handler(PIO0_IRQ_0, PIOx_IRQHandler);
     //irq_set_priority(PIO0_IRQ_0, 1);
     irq_set_enabled(PIO0_IRQ_0, true);
-
-    critical_section_init(&can_cris_sec);
 
     switch(p_can_config->baudrate)
     {
@@ -219,13 +220,6 @@ int send_can_msg(char *msg_buf)
         printf("string format error...\n\n");
         return CAN_ERR_FORMAT;
     } 
-
-    // if ((tx_msg.id & can_filter.filter_mask) != (can_filter.filter_id & can_filter.filter_mask)) 
-    // {
-    //     printf("Message ID 0x%X does not match filter (ID=0x%X, Mask=0x%X)\n", 
-    //             tx_msg.id, can_filter.filter_id, can_filter.filter_mask);
-    //     return CAN_ERR_FILTER;
-    // }
 
     if(tx_msg.id & CAN2040_ID_EFF)
     {

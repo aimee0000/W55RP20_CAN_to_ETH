@@ -252,13 +252,21 @@ class CANVIEW:
         self.update_status("Client disconnected")
 
     def receive_data_from_server(self):
+        buffer = ""
         while self.server_running:
             try:
                 data = self.client_socket.recv(1024)
-                if data:
-                    self.display_data(data.decode('utf-8'))
-                else:
-                    break
+
+                if not data:
+                    print("data failed")
+                    break  
+
+                buffer += data.decode('utf-8')
+
+                while "\n" in buffer:
+                    message, buffer = buffer.split("\n", 1)
+                    self.display_data(message.strip())
+
             except (ConnectionResetError, OSError):
                 break
 

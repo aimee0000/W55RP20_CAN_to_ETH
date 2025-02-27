@@ -116,7 +116,7 @@ int main()
     wizchip_reset();
     wizchip_initialize();
     wizchip_check();
-    
+
     load_DevConfig_from_storage();
     Net_Conf();
 
