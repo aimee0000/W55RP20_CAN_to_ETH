@@ -187,12 +187,14 @@ static int is_pio_in_use(uint32_t pio_num)
 int send_can_msg(char *msg_buf)
 {
     struct can2040_msg tx_msg;
-    char *p_id_token = NULL, *p_data_token = NULL;
+    char *p_id_token = NULL, *p_dlc_token = NULL, *p_data_token = NULL;
+    uint32_t dlc = 0;
 
     memset(&tx_msg, 0x0, sizeof(struct can2040_msg));
     p_id_token = NULL;
     p_data_token = NULL;
 
+    // ID
     p_id_token = custom_strtok(msg_buf, ",");
 
     if(p_id_token == NULL)
@@ -203,17 +205,34 @@ int send_can_msg(char *msg_buf)
 
     tx_msg.id = string_to_hex32(p_id_token);
 
-    do {
-        p_data_token = custom_strtok(NULL, " ");
-        if(p_data_token == NULL) 
+    // DLC
+    p_dlc_token = custom_strtok(NULL, " \n");
+
+    if (p_dlc_token == NULL || p_dlc_token[0] != '[') 
+    {
+        printf("DLC format error...\n\n");
+        return CAN_ERR_FORMAT;
+    }
+
+    dlc = atoi(p_dlc_token + 1);  
+
+    if (dlc > 8) 
+    {
+        printf("Invalid DLC value: %u\n\n", dlc);
+        return CAN_ERR_FORMAT;
+    }
+
+    tx_msg.dlc = dlc; 
+
+    // Data
+    for(uint32_t i = 0; i < dlc; i++) {
+        p_data_token = custom_strtok(NULL, " \n");        
+
+        if( (p_data_token == NULL) )
             break;
 
-        if(tx_msg.dlc >= 8)
-            break;
-
-        tx_msg.data[tx_msg.dlc] = string_to_hex32(p_data_token);
-        tx_msg.dlc++;
-    } while(1);
+        tx_msg.data[i] = string_to_hex32(p_data_token);
+    } 
 
     if( (p_data_token==NULL) && (tx_msg.dlc == 0) )
     {

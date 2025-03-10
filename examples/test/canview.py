@@ -324,9 +324,9 @@ class CANVIEW:
 
         dlc = int(self.dlc_var.get())
         data_values = [self.data_entries[i].get() for i in range(dlc)]
-        formatted_data = ' '.join(data_values) + "\x00"
+        formatted_data = ' '.join(data_values)            
 
-        message = f"{can_id_str},{formatted_data}\n"
+        message = f"{can_id_str}, [{dlc}] {formatted_data}\n"
 
         try:
             if self.mode_var.get() == "Server":

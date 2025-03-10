@@ -18,8 +18,6 @@
 #include "w5x00_spi.h"
 #include "w5x00_gpio_irq.h"
 
-// #include "socket.h"
-// #include "can.h" 
 #include "pico/stdio.h"
 #include "pico/stdlib.h"
 #include "pico/binary_info.h"
@@ -54,16 +52,6 @@
  * Variables
  * ----------------------------------------------------------------------------------------------------
  */
-/* Network */
-static wiz_NetInfo g_net_info =
-    {
-        .mac = {0x00, 0x08, 0xDC, 0x12, 0x34, 0x56}, // MAC address
-        .ip = {192, 168, 11, 2},                     // IP address
-        .sn = {255, 255, 255, 0},                    // Subnet Mask
-        .gw = {192, 168, 11, 1},                     // Gateway
-        .dns = {8, 8, 8, 8},                         // DNS server
-        .dhcp = NETINFO_STATIC                       // DHCP enable/disable
-};
 
 /* HTTP */
 static uint8_t g_http_send_buf[HTTP_BUF_MAX_SIZE] = {
@@ -81,9 +69,6 @@ uint8_t g_rx_buf[DATA_BUF_MAX_SIZE] = {
 };
 
 static uint8_t g_http_socket_num_list[HTTP_SOCKET_MAX_NUM] = {4, 5, 6, 7};
-
-static uint8_t destip[4] = {192, 168, 11, 3};
-static uint16_t destport = 5000;
 
 /**
  * ----------------------------------------------------------------------------------------------------
